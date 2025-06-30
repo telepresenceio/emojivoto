@@ -38,9 +38,7 @@ Deploy the application to Minikube using the Linkerd2 service mesh.
 1. Inject, Deploy, and Enjoy
 
     ```bash
-    kubectl kustomize kustomize/deployment | \
-        linkerd inject - | \
-        kubectl apply -f -
+    make kustomize | kubectl apply -f -
     ```
 
 1. Use the app!

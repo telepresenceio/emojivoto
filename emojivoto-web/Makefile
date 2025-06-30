@@ -13,6 +13,6 @@ package-web: webpack
 	cp -a webapp/dist $(target_dir)
 
 compile-vote-bot:
-	GOOS=linux go build -v -o $(target_dir)/emojivoto-vote-bot cmd/vote-bot/main.go
+	go build -v -o $(target_dir)/emojivoto-vote-bot cmd/vote-bot/main.go
 
 compile: compile-vote-bot

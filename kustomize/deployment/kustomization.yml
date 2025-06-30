@@ -4,3 +4,22 @@ resources:
 - emoji.yml
 - voting.yml
 - vote-bot.yml
+
+images:
+  - name: emojivoto-web
+    newName: localhost:5000/emojivoto-web
+    newTag: 0.1.0
+  - name: emojivoto-emoji-svc
+    newName: localhost:5000/emojivoto-emoji-svc
+    newTag: 0.1.0
+  - name: emojivoto-voting-svc
+    newName: localhost:5000/emojivoto-voting-svc
+    newTag: 0.1.0
+
+labels:
+  - includeSelectors: true
+    pairs:
+      version: 0.1.0
+  - includeTemplates: false
+    pairs:
+      app.kubernetes.io/version: 0.1.0

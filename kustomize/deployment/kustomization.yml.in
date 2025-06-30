@@ -1,0 +1,25 @@
+resources:
+- ns.yml
+- web.yml
+- emoji.yml
+- voting.yml
+- vote-bot.yml
+
+images:
+  - name: emojivoto-web
+    newName: ${IMAGE_REGISTRY}/emojivoto-web
+    newTag: ${IMAGE_TAG}
+  - name: emojivoto-emoji-svc
+    newName: ${IMAGE_REGISTRY}/emojivoto-emoji-svc
+    newTag: ${IMAGE_TAG}
+  - name: emojivoto-voting-svc
+    newName: ${IMAGE_REGISTRY}/emojivoto-voting-svc
+    newTag: ${IMAGE_TAG}
+
+labels:
+  - includeSelectors: true
+    pairs:
+      version: ${IMAGE_TAG}
+  - includeTemplates: false
+    pairs:
+      app.kubernetes.io/version: ${IMAGE_TAG}

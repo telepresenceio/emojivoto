@@ -1,5 +1,3 @@
-IMAGE_TAG ?= v12
-
 .PHONY: package protoc test
 
 target_dir := target
@@ -18,14 +16,17 @@ protoc:
 package: protoc compile build-container
 
 build-container:
-	docker build .. -t "telepresenceio/$(svc_name):$(IMAGE_TAG)" --build-arg svc_name=$(svc_name)
+	docker build .. -t "$(IMAGE_REGISTRY)/$(svc_name):$(IMAGE_TAG)" \
+ 		--build-arg image_registry=$(IMAGE_REGISTRY) \
+ 		--build-arg image_tag=$(IMAGE_TAG) \
+ 		--build-arg svc_name=$(svc_name)
 
 build-multi-arch:
-	docker buildx build .. -t "telepresenceio/$(svc_name):$(IMAGE_TAG)" --build-arg svc_name=$(svc_name) \
+	docker buildx build .. -t "$(IMAGE_REGISTRY)/$(svc_name):$(IMAGE_TAG)" --build-arg svc_name=$(svc_name) \
 		-f ../Dockerfile-multi-arch --platform linux/amd64,linux/arm64,linux/arm/v7 --push
 
 compile:
-	GOOS=linux go build -v -o $(target_dir)/$(svc_name) cmd/server.go
+	go build -v -o $(target_dir)/$(svc_name) cmd/server.go
 
 test:
 	go test ./...

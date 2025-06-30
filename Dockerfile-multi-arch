@@ -1,7 +1,7 @@
 ARG svc_name
 
 # go build stage
-FROM --platform=$BUILDPLATFORM golang:1.15.0 as golang
+FROM --platform=$BUILDPLATFORM golang:bookworm as golang
 WORKDIR /emojivoto-build
 
 # install protobuf
@@ -9,17 +9,19 @@ RUN apt-get update && apt-get install -y protobuf-compiler
 RUN go get github.com/golang/protobuf/protoc-gen-go
 
 # cache go dependencies
-COPY go.mod go.sum .
+COPY go.mod .
+COPY go.sum .
 RUN go mod download
 
 # compile
 COPY . .
 ARG TARGETARCH
+ARG TARGETOS
 ARG svc_name
-RUN GOARCH=$TARGETARCH make -C $svc_name clean protoc compile
+RUN GOARCH=$TARGETARCH GOOS=$TARGETOS make -C $svc_name clean protoc compile
 
 # webpack stage
-FROM --platform=$BUILDPLATFORM node:14-buster as webpack-bundle
+FROM --platform=$BUILDPLATFORM node:bookworm-slim as webpack-bundle
 WORKDIR /emojivoto-build
 COPY . .
 RUN make -C emojivoto-web clean webpack package-web

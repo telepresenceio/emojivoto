@@ -1,4 +1,6 @@
-FROM telepresenceio/emojivoto-svc-base:v12
+ARG image_registry=ghrc.io/telepresenceio
+ARG image_tag=0.1.0
+FROM $image_registry/emojivoto-svc-base:$image_tag
 
 ARG svc_name
 

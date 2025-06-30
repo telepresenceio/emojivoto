@@ -11,8 +11,10 @@ import (
 
 	"github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/telepresenceio
 	"google.golang.org/grpc"
+
+	"github.com/telepresenceio/emojivoto/emojivoto-emoji-svc/api"
+	"github.com/telepresenceio/emojivoto/emojivoto-emoji-svc/emoji"
 )
 
 var (

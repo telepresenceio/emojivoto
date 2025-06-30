@@ -1,11 +1,12 @@
-include ./common.mk
+include .env
+export
 
-.PHONY: web emoji-svc voting-svc integration-tests push
+.PHONY: web emoji-svc voting-svc integration-tests push kustomize
 
 all: build integration-tests
 
 build-base-docker-image:
-	docker build . -f Dockerfile-base -t "telepresenceio/emojivoto-svc-base:$(IMAGE_TAG)"
+	docker build . -f Dockerfile-base -t "$(IMAGE_REGISTRY)/emojivoto-svc-base:$(IMAGE_TAG)"
 
 web:
 	$(MAKE) -C emojivoto-web
@@ -39,6 +40,12 @@ deploy-to-docker-compose:
 	docker compose up -d
 
 push-%:
-	docker push telepresenceio/emojivoto-$*:$(IMAGE_TAG)
+	docker push $(IMAGE_REGISTRY)/emojivoto-$*:$(IMAGE_TAG)
 
-push: push-svc-base push-emoji-svc push-voting-svc push-web
+push: build push-svc-base push-emoji-svc push-voting-svc push-web
+
+kustomize/deployment/kustomization.yml: kustomize/deployment/kustomization.yml.in .env
+	@envsubst < $< > $@
+
+kustomize: kustomize/deployment/kustomization.yml
+	@kubectl kustomize $(<D)
