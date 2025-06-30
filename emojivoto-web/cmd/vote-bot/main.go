@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"math/rand"
 	"net/http"
@@ -11,10 +11,6 @@ import (
 	"os"
 	"strconv"
 	"time"
-
-	"contrib.go.opencensus.io/exporter/ocagent"
-	"go.opencensus.io/plugin/ochttp"
-	"go.opencensus.io/trace"
 )
 
 // VoteBot votes for emoji! :ballot_box_with_check:
@@ -25,7 +21,7 @@ import (
 // pick a favorite, so it picks one at random. C'mon VoteBot, try harder!
 
 var (
-	client = &http.Client{Transport: &ochttp.Transport{}}
+	client = &http.Client{}
 
 	ocagentHost = os.Getenv("OC_AGENT_HOST")
 )
@@ -44,30 +40,18 @@ func main() {
 
 	hostOverride := os.Getenv("HOST_OVERRIDE")
 
-	// setting the the TTL is optional, thus invalid numbers are simply ignored
-	timeToLive, _ := strconv.Atoi(os.Getenv("TTL"))
-	var deadline time.Time = time.Unix(0, 0)
-
-	if timeToLive != 0 {
+	// setting the TTL is optional, thus invalid numbers are simply ignored
+	var deadline time.Time
+	timeToLive, err := strconv.Atoi(os.Getenv("TTL"))
+	if err == nil && timeToLive > 0 {
 		deadline = time.Now().Add(time.Second * time.Duration(timeToLive))
 	}
 
-	// setting the the request rate is optional, thus invalid numbers are simply ignored
-	requestRate, _ := strconv.Atoi(os.Getenv("REQUEST_RATE"))
-	if requestRate < 1 {
+	// setting the request rate is optional, thus invalid numbers are simply ignored
+	requestRate, err := strconv.Atoi(os.Getenv("REQUEST_RATE"))
+	if err != nil {
 		requestRate = 1
 	}
-
-	oce, err := ocagent.NewExporter(
-		ocagent.WithInsecure(),
-		ocagent.WithReconnectionPeriod(5*time.Second),
-		ocagent.WithAddress(ocagentHost),
-		ocagent.WithServiceName("vote-bot"))
-	if err != nil {
-		log.Fatalf("Failed to create ocagent-exporter: %v", err)
-	}
-	trace.RegisterExporter(oce)
-	trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
 
 	webURL := "http://" + webHost
 	if _, err := url.Parse(webURL); err != nil {
@@ -117,7 +101,7 @@ func shortcodes(webURL string, hostOverride string) ([]string, error) {
 	}
 	defer resp.Body.Close()
 
-	bytes, err := ioutil.ReadAll(resp.Body)
+	bytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}

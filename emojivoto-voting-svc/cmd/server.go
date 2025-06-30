@@ -14,20 +14,17 @@ import (
 	"github.com/buoyantio/emojivoto/emojivoto-voting-svc/api"
 	"github.com/buoyantio/emojivoto/emojivoto-voting-svc/voting"
 
-	"contrib.go.opencensus.io/exporter/ocagent"
-	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	"github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opencensus.io/plugin/ocgrpc"
-	"go.opencensus.io/trace"
 	"google.golang.org/grpc"
 )
 
 var (
 	grpcPort                   = os.Getenv("GRPC_PORT")
 	promPort                   = os.Getenv("PROM_PORT")
-	ocagentHost                = os.Getenv("OC_AGENT_HOST")
 	failureRateVar             = os.Getenv("FAILURE_RATE")
-	failureRateFloat           = float64(0.0)
+	failureRateFloat           = 0.0
 	artificialDelayVar         = os.Getenv("ARTIFICIAL_DELAY")
 	artificialDelayDuration, _ = time.ParseDuration("0ms")
 )
@@ -38,21 +35,11 @@ func main() {
 		log.Fatalf("GRPC_PORT (currently [%s]) environment variable must me set to run the server.", grpcPort)
 	}
 
-	oce, err := ocagent.NewExporter(
-		ocagent.WithInsecure(),
-		ocagent.WithReconnectionPeriod(5*time.Second),
-		ocagent.WithAddress(ocagentHost),
-		ocagent.WithServiceName("voting"))
-	if err != nil {
-		log.Fatalf("Failed to create ocagent-exporter: %v", err)
-	}
-	trace.RegisterExporter(oce)
-
 	poll := voting.NewPoll()
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", grpcPort))
 	if err != nil {
-		panic(err)
+		log.Fatal(err.Error())
 	}
 
 	errs := make(chan error, 1)

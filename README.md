@@ -93,8 +93,8 @@ Building requires that you have protoc-gen-go v1.27.1 and
 protoc-gen-go-grpc v1.1.0 on your path. These can be installed by running:
 
 ```bash
-go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.27.1
-go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1.0
+go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
 ```
 
 Then you can set up proto files and build apps by running:
