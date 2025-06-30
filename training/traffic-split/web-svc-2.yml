@@ -51,7 +51,7 @@ spec:
           value: dist/index_bundle.js
         - name: MESSAGE_OF_THE_DAY
           value: "Welcome to version 2! Now with more words!"
-        image: buoyantio/emojivoto-web:lf-training
+        image: telepresenceio/emojivoto-web:lf-training
         name: web-svc-2
         ports:
         - containerPort: 8080

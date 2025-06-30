@@ -11,8 +11,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/buoyantio/emojivoto/emojivoto-voting-svc/api"
-	"github.com/buoyantio/emojivoto/emojivoto-voting-svc/voting"
+	"github.com/telepresenceio/emojivoto/emojivoto-voting-svc/api"
+	"github.com/telepresenceio/emojivoto/emojivoto-voting-svc/voting"
 
 	"github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"

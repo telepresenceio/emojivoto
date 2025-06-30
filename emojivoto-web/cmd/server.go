@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	pb "github.com/buoyantio/emojivoto/emojivoto-web/gen/proto"
-	"github.com/buoyantio/emojivoto/emojivoto-web/web"
+	pb "github.com/telepresenceio/emojivoto/emojivoto-web/gen/proto"
+	"github.com/telepresenceio/emojivoto/emojivoto-web/web"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )

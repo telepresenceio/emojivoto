@@ -1,4 +1,4 @@
-module github.com/buoyantio/emojivoto
+module github.com/telepresenceio/emojivoto
 
 go 1.23.0
 
