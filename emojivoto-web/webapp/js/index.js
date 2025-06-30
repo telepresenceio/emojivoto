@@ -1,24 +1,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import Vote from './components/Vote.jsx';
 import Leaderboard from './components/Leaderboard.jsx';
 import gridStyles from './../css/grid.css';
 import styles from './../css/styles.css';
 
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router';
 
-let appMain = document.getElementById('main');
-let appData = appMain.dataset;
-
-ReactDOM.render((
+const appMain = createRoot(document.getElementById("main"))
+appMain.render(
   <BrowserRouter>
-    <div>
       <div className="main-content">
-        <Switch>
-          <Route exact path="/" component = { Vote } />
-          <Route path="/leaderboard" component = { Leaderboard } />
-        </Switch>
+        <Routes>
+          <Route exact path="/" element = {<Vote/>} />
+          <Route path="/leaderboard" element = {<Leaderboard/>} />
+        </Routes>
       </div>
-    </div>
   </BrowserRouter>
-), appMain);
+);

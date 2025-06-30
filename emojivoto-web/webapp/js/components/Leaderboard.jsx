@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import 'whatwg-fetch';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 export default class Leaderboard extends React.Component {
   constructor(props) {

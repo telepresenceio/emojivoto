@@ -1,6 +1,6 @@
 import React from 'react';
 import _ from 'lodash';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import 'whatwg-fetch';
 
 const EmojiVotoPage = ({headline, contents, containerClass, preHeadline}) => {
