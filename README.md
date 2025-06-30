@@ -15,25 +15,7 @@ The application is composed of the following 3 services:
 
 ### In Minikube
 
-Deploy the application to Minikube using the Linkerd2 service mesh.
-
-1. Install the `linkerd` CLI
-
-    ```bash
-    curl https://run.linkerd.io/install | sh
-    ```
-
-1. Install Linkerd2
-
-    ```bash
-    linkerd install | kubectl apply -f -
-    ```
-
-1. View the dashboard!
-
-    ```bash
-    linkerd dashboard
-    ```
+Deploy the application to Minikube
 
 1. Inject, Deploy, and Enjoy
 
@@ -49,7 +31,7 @@ Deploy the application to Minikube using the Linkerd2 service mesh.
 
 ### In docker-compose
 
-It's also possible to run the app with docker-compose (without Linkerd2).
+It's also possible to run the app with docker-compose.
 
 Build and run:
 
@@ -100,41 +82,6 @@ Then you can set up proto files and build apps by running:
 ```bash
 make build
 ```
-
-## Releasing a new version
-
-To build and push multi-arch docker images:
-
-1. Update the tag name in `common.mk`
-1. Create the Buildx builder instance
-
-    ```bash
-    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-    docker buildx create --name=multiarch-builder --driver=docker-container --use
-    docker buildx inspect multiarch-builder --bootstrap
-    ```
-
-1. Build & push the multi-arch docker images to hub.docker.com
-
-    ```bash
-    docker login
-    make multi-arch
-    ```
-
-1. Update:
-    - `docker-compose.yml`
-    - `kustomize/deployment/emoji.yml`
-    - `kustomize/deployment/vote-bot.yml`
-    - `kustomize/deployment/voting.yml`
-    - `kustomize/deployment/web.yml`
-
-1. Distribute to the Linkerd website repo
-
-    ```bash
-    kubectl kustomize kustomize/deployment  > ../website/run.linkerd.io/public/emojivoto.yml
-    kubectl kustomize kustomize/daemonset   > ../website/run.linkerd.io/public/emojivoto-daemonset.yml
-    kubectl kustomize kustomize/statefulset > ../website/run.linkerd.io/public/emojivoto-statefulset.yml
-    ```
 
 ## Prometheus Metrics
 
@@ -199,75 +146,3 @@ View emojivoto
 ```bash
 open http://localhost:8080
 ```
-
-### Testing Linkerd Service Profiles
-
-[Service Profiles](https://linkerd.io/2/features/service-profiles/) are a
-feature of Linkerd that provide per-route functionality such as telemetry,
-timeouts, and retries. The Emojivoto application is designed to showcase
-Service Profiles by following the instructions below.
-
-#### Generate the ServiceProfile definitions from the `.proto` files
-
-The `emoji` and `voting` services are [gRPC](https://grpc.io/) applications
-which have [Protocol Buffers (protobuf)](https://developers.google.com/protocol-buffers)
-definition files. These `.proto` files can be used as input to the `linkerd
-profile` command in order to create the `ServiceProfile` definition yaml files.
-The [Linkerd Service Profile documentation](https://linkerd.io/2/tasks/setting-up-service-profiles/#protobuf)
-outlines the steps necessary to create the yaml files, and these are the
-commands you can use from the root of this repository:
-
-```
-linkerd profile --proto proto/Emoji.proto emoji-svc -n emojivoto
-```
-```
-linkerd profile --proto proto/Voting.proto voting-svc -n emojivoto
-```
-
-Each of these commands will output yaml that you can write to a file or pipe
-directly to `kubectl apply`. For example:
-
-- To write to a file:
-```
-linkerd profile --proto proto/Emoji.proto emoji-svc -n emojivoto > emoji
--sp.yaml
-```
-
-- To apply directly:
-```
-linkerd profile --proto proto/Voting.proto voting-svc -n emojivoto | \
-kubectl apply -f -
-```
-
-#### Generate the ServiceProfile definition for the Web deployment
-
-The `web-svc` deployment of emojivoto is a React application that is hosted by a
-Go server. We can use [`linkerd profile auto creation`](https://linkerd.io/2/tasks/setting-up-service-profiles/#auto-creation)
-to generate the `ServiceProfile` resource for the web-svc with this command:
-
-```bash
-linkerd profile -n emojivoto web-svc --tap deploy/web --tap-duration 10s | \
-   kubectl apply -f -
-```
-
-Now that the service profiles are generated for all the services, you can
-observe the per-route metrics for each service on the [Linkerd Dashboard](https://linkerd.io/2/features/dashboard/)
-or with the `linkerd routes` command
-
-```bash
-linkerd -n emojivoto routes deploy/web-svc --to svc/emoji-svc
-```
-## License
-
-Copyright 2020 Buoyant, Inc. All rights reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-these files except in compliance with the License. You may obtain a copy of the
-License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software distributed
-under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-CONDITIONS OF ANY KIND, either express or implied. See the License for the
-specific language governing permissions and limitations under the License.
