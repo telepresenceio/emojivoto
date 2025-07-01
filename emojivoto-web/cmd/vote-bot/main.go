@@ -20,19 +20,13 @@ import (
 // When not voting for :doughnut:, VoteBot can’t be bothered to
 // pick a favorite, so it picks one at random. C'mon VoteBot, try harder!
 
-var (
-	client = &http.Client{}
-
-	ocagentHost = os.Getenv("OC_AGENT_HOST")
-)
+var client = &http.Client{}
 
 type emoji struct {
 	Shortcode string
 }
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
-
 	webHost := os.Getenv("WEB_HOST")
 	if webHost == "" {
 		log.Fatalf("WEB_HOST environment variable must me set")
@@ -90,8 +84,7 @@ func main() {
 }
 
 func shortcodes(webURL string, hostOverride string) ([]string, error) {
-	url := fmt.Sprintf("%s/api/list", webURL)
-	req, _ := http.NewRequest("GET", url, nil)
+	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/api/list", webURL), nil)
 	if hostOverride != "" {
 		req.Host = hostOverride
 	}
@@ -123,8 +116,7 @@ func shortcodes(webURL string, hostOverride string) ([]string, error) {
 func vote(webURL string, hostOverride string, shortcode string) error {
 	fmt.Printf("✔ Voting for %s\n", shortcode)
 
-	url := fmt.Sprintf("%s/api/vote?choice=%s", webURL, shortcode)
-	req, _ := http.NewRequest("GET", url, nil)
+	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/api/vote?choice=%s", webURL, shortcode), nil)
 	if hostOverride != "" {
 		req.Host = hostOverride
 	}

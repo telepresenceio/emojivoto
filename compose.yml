@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   web:
     image: ${IMAGE_REGISTRY}/emojivoto-web:${IMAGE_TAG}

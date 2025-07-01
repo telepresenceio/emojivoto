@@ -9,15 +9,16 @@ import (
 	"net/url"
 	"testing"
 
-	pb "github.com/telepresenceio/emojivoto/emojivoto-web/gen/proto"
 	"google.golang.org/grpc"
+
+	pb "github.com/telepresenceio/emojivoto/emojivoto-web/gen/proto"
 )
 
 type MockEmojiServiceClient struct {
 	emojiList []*pb.Emoji
 }
 
-func (c *MockEmojiServiceClient) ListAll(ctx context.Context, in *pb.ListAllEmojiRequest, opts ...grpc.CallOption) (*pb.ListAllEmojiResponse, error) {
+func (c *MockEmojiServiceClient) ListAll(context.Context, *pb.ListAllEmojiRequest, ...grpc.CallOption) (*pb.ListAllEmojiResponse, error) {
 	response := pb.ListAllEmojiResponse{
 		List: c.emojiList,
 	}
@@ -25,7 +26,7 @@ func (c *MockEmojiServiceClient) ListAll(ctx context.Context, in *pb.ListAllEmoj
 	return &response, nil
 }
 
-func (c *MockEmojiServiceClient) FindByShortcode(ctx context.Context, req *pb.FindByShortcodeRequest, opts ...grpc.CallOption) (*pb.FindByShortcodeResponse, error) {
+func (c *MockEmojiServiceClient) FindByShortcode(_ context.Context, req *pb.FindByShortcodeRequest, _ ...grpc.CallOption) (*pb.FindByShortcodeResponse, error) {
 	foundEmoji := c.findByShortcode(req.Shortcode)
 
 	return &pb.FindByShortcodeResponse{
@@ -456,7 +457,7 @@ func (c *MockVotingServiceClient) VoteFloppyDisk(_ context.Context, _ *pb.VoteRe
 	return c.vote(":floppy_disk:")
 }
 
-func (c *MockVotingServiceClient) Results(ctx context.Context, in *pb.ResultsRequest, opts ...grpc.CallOption) (*pb.ResultsResponse, error) {
+func (c *MockVotingServiceClient) Results(context.Context, *pb.ResultsRequest, ...grpc.CallOption) (*pb.ResultsResponse, error) {
 	return &pb.ResultsResponse{
 		Results: c.resultToReturn,
 	}, nil
@@ -467,14 +468,14 @@ func TestListEmojiHandler(t *testing.T) {
 	t.Run("returns correct list", func(t *testing.T) {
 		expectedList := []*pb.Emoji{{Shortcode: "a", Unicode: "\\a"}, {Shortcode: "b", Unicode: "\\b"}}
 		emojiSvcClient := &MockEmojiServiceClient{emojiList: expectedList}
-		webApp := &WebApp{
+		webApp := &App{
 			emojiServiceClient: emojiSvcClient,
 		}
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(webApp.listEmojiHandler)
 
-		req, err := http.NewRequest("GET", "/list", nil)
+		req, err := http.NewRequest(http.MethodGet, "/list", nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -489,7 +490,7 @@ func TestListEmojiHandler(t *testing.T) {
 		var responseList []map[string]string
 
 		if err := json.Unmarshal(rr.Body.Bytes(), &responseList); err != nil {
-			t.Fatalf("parsing response returned error [%v] response:\n%s", err, string(rr.Body.Bytes()))
+			t.Fatalf("parsing response returned error [%v] response:\n%s", err, rr.Body.String())
 		}
 
 		if len(responseList) != len(expectedList) {
@@ -516,7 +517,7 @@ func TestVoteHandler(t *testing.T) {
 		expectedList := []*pb.Emoji{emojiIWantToVoteFor}
 		emojiSvcClient := &MockEmojiServiceClient{emojiList: expectedList}
 		votingServiceClient := &MockVotingServiceClient{}
-		webApp := &WebApp{
+		webApp := &App{
 			emojiServiceClient:  emojiSvcClient,
 			votingServiceClient: votingServiceClient,
 		}
@@ -524,7 +525,7 @@ func TestVoteHandler(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(webApp.voteEmojiHandler)
 
-		req, err := http.NewRequest("POST", "/voting", nil)
+		req, err := http.NewRequest(http.MethodPost, "/voting", nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -547,12 +548,12 @@ func TestVoteHandler(t *testing.T) {
 	})
 
 	t.Run("rejects request if doesnt contain choice parameter", func(t *testing.T) {
-		webApp := &WebApp{}
+		webApp := &App{}
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(webApp.voteEmojiHandler)
 
-		req, err := http.NewRequest("POST", "/voting", nil)
+		req, err := http.NewRequest(http.MethodPost, "/voting", nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -575,7 +576,7 @@ func TestVoteHandler(t *testing.T) {
 		expectedList := []*pb.Emoji{emojiIWantToVoteFor}
 		emojiSvcClient := &MockEmojiServiceClient{emojiList: expectedList}
 		votingServiceClient := &MockVotingServiceClient{}
-		webApp := &WebApp{
+		webApp := &App{
 			emojiServiceClient:  emojiSvcClient,
 			votingServiceClient: votingServiceClient,
 		}
@@ -583,7 +584,7 @@ func TestVoteHandler(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(webApp.voteEmojiHandler)
 
-		req, err := http.NewRequest("POST", "/api/vote", nil)
+		req, err := http.NewRequest(http.MethodPost, "/api/vote", nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -629,7 +630,7 @@ func TestLeaderboard(t *testing.T) {
 		}
 		emojiSvcClient := &MockEmojiServiceClient{emojiList: expectedList}
 		votingServiceClient := &MockVotingServiceClient{resultToReturn: expectedResults}
-		webApp := &WebApp{
+		webApp := &App{
 			emojiServiceClient:  emojiSvcClient,
 			votingServiceClient: votingServiceClient,
 		}
@@ -637,7 +638,7 @@ func TestLeaderboard(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(webApp.leaderboardHandler)
 
-		req, err := http.NewRequest("GET", "/leaderboard", nil)
+		req, err := http.NewRequest(http.MethodGet, "/leaderboard", nil)
 		if err != nil {
 			t.Fatal(err)
 		}

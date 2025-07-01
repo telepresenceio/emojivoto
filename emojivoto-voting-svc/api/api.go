@@ -7,9 +7,10 @@ import (
 	"math/rand"
 	"time"
 
+	"google.golang.org/grpc"
+
 	pb "github.com/telepresenceio/emojivoto/emojivoto-voting-svc/gen/proto"
 	"github.com/telepresenceio/emojivoto/emojivoto-voting-svc/voting"
-	"google.golang.org/grpc"
 )
 
 var (

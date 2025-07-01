@@ -3,9 +3,10 @@ package api
 import (
 	"context"
 
+	"google.golang.org/grpc"
+
 	"github.com/telepresenceio/emojivoto/emojivoto-emoji-svc/emoji"
 	pb "github.com/telepresenceio/emojivoto/emojivoto-emoji-svc/gen/proto"
-	"google.golang.org/grpc"
 )
 
 type EmojiServiceServer struct {
@@ -13,12 +14,11 @@ type EmojiServiceServer struct {
 	pb.UnimplementedEmojiServiceServer
 }
 
-func (svc *EmojiServiceServer) ListAll(ctx context.Context, req *pb.ListAllEmojiRequest) (*pb.ListAllEmojiResponse, error) {
-
-	emoji := svc.allEmoji.List()
+func (svc *EmojiServiceServer) ListAll(context.Context, *pb.ListAllEmojiRequest) (*pb.ListAllEmojiResponse, error) {
+	es := svc.allEmoji.List()
 
 	list := make([]*pb.Emoji, 0)
-	for _, e := range emoji {
+	for _, e := range es {
 		pbE := pb.Emoji{
 			Unicode:   e.Unicode,
 			Shortcode: e.Shortcode,
@@ -29,7 +29,7 @@ func (svc *EmojiServiceServer) ListAll(ctx context.Context, req *pb.ListAllEmoji
 	return &pb.ListAllEmojiResponse{List: list}, nil
 }
 
-func (svc *EmojiServiceServer) FindByShortcode(ctx context.Context, req *pb.FindByShortcodeRequest) (*pb.FindByShortcodeResponse, error) {
+func (svc *EmojiServiceServer) FindByShortcode(_ context.Context, req *pb.FindByShortcodeRequest) (*pb.FindByShortcodeResponse, error) {
 	var pbE *pb.Emoji
 	foundEmoji := svc.allEmoji.WithShortcode(req.Shortcode)
 	if foundEmoji != nil {

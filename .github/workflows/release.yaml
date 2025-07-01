@@ -1,0 +1,20 @@
+on:
+  push:
+    tags:
+      # These aren't regexps. They are "Workflow Filter patterns"
+      - [0-9]+.[0-9]+.[0-9]
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Push image
+        env:
+          IMAGE_REGISTRY: ghcr.io/telepresenceio
+          IMAGE_TAG: ${{ github.ref }}
+        run: |
+          echo "IMAGE_REGISTRY=${IMAGE_REGISTRY}" > .env
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> .env
+          echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u='${{ github.actor }}' --password-stdin
+          make push

@@ -45,7 +45,6 @@ func TestFindByShortcode(t *testing.T) {
 			if found != emoji {
 				t.Fatalf("Couldn't find [%s] by shortcode", emoji)
 			}
-
 		}
 	})
 
@@ -55,7 +54,6 @@ func TestFindByShortcode(t *testing.T) {
 			if found != nil {
 				t.Fatalf("Returned unexpected [%v]for shortcode [%s]", found, shortcode)
 			}
-
 		}
 	})
 }

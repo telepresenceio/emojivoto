@@ -84,5 +84,4 @@ func TestFindByShortcode(t *testing.T) {
 			t.Fatalf("Expected to return nil for emoji, returned [%s]", response.Emoji)
 		}
 	})
-
 }
