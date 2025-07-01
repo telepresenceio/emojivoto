@@ -2,10 +2,8 @@ package web
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -16,7 +14,7 @@ import (
 	pb "github.com/telepresenceio/emojivoto/emojivoto-web/gen/proto"
 )
 
-type WebApp struct {
+type App struct {
 	emojiServiceClient  pb.EmojiServiceClient
 	votingServiceClient pb.VotingServiceClient
 	indexBundle         string
@@ -24,7 +22,7 @@ type WebApp struct {
 	messageOfTheDay     string
 }
 
-func (app *WebApp) listEmojiHandler(w http.ResponseWriter, r *http.Request) {
+func (app *App) listEmojiHandler(w http.ResponseWriter, r *http.Request) {
 	serviceResponse, err := app.emojiServiceClient.ListAll(r.Context(), &pb.ListAllEmojiRequest{})
 	if err != nil {
 		writeError(err, w, r, http.StatusInternalServerError)
@@ -46,7 +44,7 @@ func (app *WebApp) listEmojiHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *WebApp) leaderboardHandler(w http.ResponseWriter, r *http.Request) {
+func (app *App) leaderboardHandler(w http.ResponseWriter, r *http.Request) {
 	results, err := app.votingServiceClient.Results(r.Context(), &pb.ResultsRequest{})
 
 	if err != nil {
@@ -83,11 +81,11 @@ func (app *WebApp) leaderboardHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *WebApp) voteEmojiHandler(w http.ResponseWriter, r *http.Request) {
+func (app *App) voteEmojiHandler(w http.ResponseWriter, r *http.Request) {
 	emojiShortcode := r.FormValue("choice")
 	if emojiShortcode == "" {
-		error := errors.New(fmt.Sprintf("Emoji choice [%s] is mandatory", emojiShortcode))
-		writeError(error, w, r, http.StatusBadRequest)
+		err := fmt.Errorf("emoji choice [%s] is mandatory", emojiShortcode)
+		writeError(err, w, r, http.StatusBadRequest)
 		return
 	}
 
@@ -101,7 +99,7 @@ func (app *WebApp) voteEmojiHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if response.Emoji == nil {
-		err = errors.New(fmt.Sprintf("Choosen emoji shortcode [%s] doesnt exist", emojiShortcode))
+		err = fmt.Errorf("choosen emoji shortcode [%s] doesnt exist", emojiShortcode)
 		writeError(err, w, r, http.StatusBadRequest)
 		return
 	}
@@ -315,7 +313,7 @@ func (app *WebApp) voteEmojiHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *WebApp) indexHandler(w http.ResponseWriter, r *http.Request) {
+func (app *App) indexHandler(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 
 	indexTemplate := fmt.Sprintf(`
@@ -338,21 +336,24 @@ func (app *WebApp) indexHandler(w http.ResponseWriter, r *http.Request) {
 	</html>`, app.messageOfTheDay)
 	t, err := template.New("indexTemplate").Parse(indexTemplate)
 	if err != nil {
-		panic(err)
+		log.Fatal(err.Error())
 	}
-	t.Execute(w, app.webpackDevServer)
+	err = t.Execute(w, app.webpackDevServer)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 }
 
-func (app *WebApp) jsHandler(w http.ResponseWriter, r *http.Request) {
+func (app *App) jsHandler(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "text/javascript")
-	f, err := ioutil.ReadFile(app.indexBundle)
+	f, err := os.Readlink(app.indexBundle)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Fprint(w, string(f))
+	fmt.Fprint(w, f)
 }
 
-func (app *WebApp) faviconHandler(w http.ResponseWriter, r *http.Request) {
+func (app *App) faviconHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "./web/favicon.ico")
 }
 
@@ -368,7 +369,7 @@ func writeError(err error, w http.ResponseWriter, r *http.Request, status int) {
 	w.WriteHeader(status)
 	errorMessage := make(map[string]string)
 	errorMessage["error"] = fmt.Sprintf("%v", err)
-	json.NewEncoder(w).Encode(errorMessage)
+	_ = json.NewEncoder(w).Encode(errorMessage)
 }
 
 func handle(path string, h func(w http.ResponseWriter, r *http.Request)) {
@@ -378,9 +379,8 @@ func handle(path string, h func(w http.ResponseWriter, r *http.Request)) {
 }
 
 func StartServer(webPort, webpackDevServer, indexBundle string, emojiServiceClient pb.EmojiServiceClient, votingClient pb.VotingServiceClient) {
-
 	motd := os.Getenv("MESSAGE_OF_THE_DAY")
-	webApp := &WebApp{
+	webApp := &App{
 		emojiServiceClient:  emojiServiceClient,
 		votingServiceClient: votingClient,
 		indexBundle:         indexBundle,

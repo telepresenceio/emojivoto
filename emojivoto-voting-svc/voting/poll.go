@@ -62,7 +62,7 @@ func (p *inMemoryPoll) Results() ([]*Result, error) {
 	return results, nil
 }
 
-var counter *prometheus.CounterVec = promauto.NewCounterVec(prometheus.CounterOpts{
+var counter = promauto.NewCounterVec(prometheus.CounterOpts{
 	Name: "emojivoto_votes_total",
 	Help: "Number of emoji votes",
 }, []string{"emoji"})

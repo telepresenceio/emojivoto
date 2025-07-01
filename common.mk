@@ -8,25 +8,20 @@ clean:
 	mkdir -p $(target_dir)
 	mkdir -p gen
 
-PROTOC ?= ../bin/protoc
-
 protoc:
-	$(PROTOC) -I .. ../proto/*.proto --go_out=paths=source_relative:./gen --go-grpc_out=paths=source_relative:./gen
+	protoc -I .. ../proto/*.proto --go_out=paths=source_relative:./gen --go-grpc_out=paths=source_relative:./gen
 
 package: protoc compile build-container
 
 build-container:
-	docker build .. -t "$(IMAGE_REGISTRY)/$(svc_name):$(IMAGE_TAG)" \
- 		--build-arg image_registry=$(IMAGE_REGISTRY) \
- 		--build-arg image_tag=$(IMAGE_TAG) \
- 		--build-arg svc_name=$(svc_name)
+	docker build .. -t "$(IMAGE_REGISTRY)/$(svc_name):$(IMAGE_TAG)" --build-arg svc_name=$(svc_name)
 
 build-multi-arch:
 	docker buildx build .. -t "$(IMAGE_REGISTRY)/$(svc_name):$(IMAGE_TAG)" --build-arg svc_name=$(svc_name) \
 		-f ../Dockerfile-multi-arch --platform linux/amd64,linux/arm64,linux/arm/v7 --push
 
 compile:
-	go build -v -o $(target_dir)/$(svc_name) cmd/server.go
+	CGO_ENABLED=0 go build -o $(target_dir)/$(svc_name) --trimpath cmd/server.go
 
 test:
 	go test ./...

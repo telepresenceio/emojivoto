@@ -1,12 +1,14 @@
-ARG svc_name
+ARG svc_name=nothing
 
 # go build stage
-FROM --platform=$BUILDPLATFORM golang:bookworm as golang
+FROM --platform=$BUILDPLATFORM golang:alpine AS golang
+
 WORKDIR /emojivoto-build
 
 # install protobuf
-RUN apt-get update && apt-get install -y protobuf-compiler
-RUN go get github.com/golang/protobuf/protoc-gen-go
+RUN apk add --no-cache make protoc
+RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
 # cache go dependencies
 COPY go.mod .
@@ -21,33 +23,25 @@ ARG svc_name
 RUN GOARCH=$TARGETARCH GOOS=$TARGETOS make -C $svc_name clean protoc compile
 
 # webpack stage
-FROM --platform=$BUILDPLATFORM node:bookworm-slim as webpack-bundle
+FROM --platform=$BUILDPLATFORM node:alpine AS webpack-bundle
+RUN apk --no-cache add make
 WORKDIR /emojivoto-build
 COPY . .
 RUN make -C emojivoto-web clean webpack package-web
 
-FROM golang as build-emojivoto-emoji-svc
-FROM golang as build-emojivoto-voting-svc
-FROM golang as build-emojivoto-web
+FROM golang AS build-emojivoto-emoji-svc
+FROM golang AS build-emojivoto-voting-svc
+FROM golang AS build-emojivoto-web
 COPY --from=webpack-bundle /emojivoto-build/emojivoto-web/target/ /emojivoto-build/emojivoto-web/target/
 
-FROM build-$svc_name as build
+FROM build-$svc_name AS build
 
 # runtime image
-FROM debian:bookworm-slim
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        curl \
-        dnsutils \
-        iptables \
-        jq \
-        nghttp2 \
-    && rm -rf /var/lib/apt/lists/*
+FROM alpine
 
 ARG svc_name
 COPY --from=build /emojivoto-build/$svc_name/target/ /usr/local/bin/
 
 # ARG variables are not available for ENTRYPOINT
-ENV SVC_NAME $svc_name
-WORKDIR /usr/local/bin
-ENTRYPOINT $SVC_NAME
+ENV SVC_NAME=$svc_name
+ENTRYPOINT [ "sh", "-c", "/usr/local/bin/$SVC_NAME" ]

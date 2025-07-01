@@ -4,10 +4,11 @@ import (
 	"log"
 	"os"
 
-	pb "github.com/telepresenceio/emojivoto/emojivoto-web/gen/proto"
-	"github.com/telepresenceio/emojivoto/emojivoto-web/web"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+
+	pb "github.com/telepresenceio/emojivoto/emojivoto-web/gen/proto"
+	"github.com/telepresenceio/emojivoto/emojivoto-web/web"
 )
 
 var (
