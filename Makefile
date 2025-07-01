@@ -1,12 +1,9 @@
 include .env
 export
 
-.PHONY: web emoji-svc voting-svc integration-tests push kustomize
+.PHONY: web emoji-svc voting-svc test push kustomize
 
-all: build integration-tests
-
-build-base-docker-image:
-	docker build . -f Dockerfile-base -t "$(IMAGE_REGISTRY)/emojivoto-svc-base:$(IMAGE_TAG)"
+all: build test
 
 web:
 	$(MAKE) -C emojivoto-web
@@ -17,9 +14,9 @@ emoji-svc:
 voting-svc:
 	$(MAKE) -C emojivoto-voting-svc
 
-build: build-base-docker-image web emoji-svc voting-svc
+build: web emoji-svc voting-svc
 
-multi-arch:
+push:
 	$(MAKE) -C emojivoto-web build-multi-arch
 	$(MAKE) -C emojivoto-emoji-svc build-multi-arch
 	$(MAKE) -C emojivoto-voting-svc build-multi-arch
@@ -39,13 +36,11 @@ deploy-to-docker-compose:
 	$(MAKE) -C emojivoto-voting-svc build-container
 	docker compose up -d
 
-push-%:
-	docker push $(IMAGE_REGISTRY)/emojivoto-$*:$(IMAGE_TAG)
-
-push: build push-svc-base push-emoji-svc push-voting-svc push-web
-
 kustomize/deployment/kustomization.yml: kustomize/deployment/kustomization.yml.in .env
 	@envsubst < $< > $@
 
 kustomize: kustomize/deployment/kustomization.yml
 	@kubectl kustomize $(<D)
+
+test:
+	go test ./...
