@@ -1,6 +1,6 @@
 services:
   web:
-    image: ghcr.io/telepresenceio/emojivoto-web:0.1.0
+    image: ${IMAGE_REGISTRY}/emojivoto-web:${IMAGE_TAG}
     environment:
       - WEB_PORT=8080
       - EMOJISVC_HOST=emoji-svc:8080
@@ -13,7 +13,7 @@ services:
       - emoji-svc
 
   vote-bot:
-    image: ghcr.io/telepresenceio/emojivoto-web:0.1.0
+    image: ${IMAGE_REGISTRY}/emojivoto-web:${IMAGE_TAG}
     entrypoint: emojivoto-vote-bot
     environment:
       - WEB_HOST=web:8080
@@ -21,14 +21,14 @@ services:
       - web
 
   emoji-svc:
-    image: ghcr.io/telepresenceio/emojivoto-emoji-svc:0.1.0
+    image: ${IMAGE_REGISTRY}/emojivoto-emoji-svc:${IMAGE_TAG}
     environment:
       - GRPC_PORT=8080
     ports:
       - "8081:8080"
 
   voting-svc:
-    image: ghcr.io/telepresenceio/emojivoto-voting-svc:0.1.0
+    image: ${IMAGE_REGISTRY}/emojivoto-voting-svc:${IMAGE_TAG}
     environment:
       - GRPC_PORT=8080
     ports:
