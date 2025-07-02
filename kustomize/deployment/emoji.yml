@@ -51,7 +51,7 @@ spec:
   ports:
   - name: grpc
     port: 8080
-    targetPort: 8080
+    targetPort: grpc
   - name: prom
     port: 8801
-    targetPort: 8801
+    targetPort: prom
