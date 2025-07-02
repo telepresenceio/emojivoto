@@ -18,7 +18,5 @@ jobs:
           IMAGE_REGISTRY: ghcr.io/telepresenceio
           REF: ${{ github.ref }}
         run: |
-          echo "IMAGE_REGISTRY=${IMAGE_REGISTRY}" > .env
-          echo "IMAGE_TAG=${REF#refs/tags/}" >> .env
           echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u='${{ github.actor }}' --password-stdin
-          make push
+          IMAGE_TAG=${REF#refs/tags/} make push

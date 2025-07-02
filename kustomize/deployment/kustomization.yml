@@ -7,13 +7,13 @@ resources:
 
 images:
   - name: emojivoto-web
-    newName: localhost:5000/emojivoto-web
+    newName: ghcr.io/telepresenceio/emojivoto-web
     newTag: 0.1.0
   - name: emojivoto-emoji-svc
-    newName: localhost:5000/emojivoto-emoji-svc
+    newName: ghcr.io/telepresenceio/emojivoto-emoji-svc
     newTag: 0.1.0
   - name: emojivoto-voting-svc
-    newName: localhost:5000/emojivoto-voting-svc
+    newName: ghcr.io/telepresenceio/emojivoto-voting-svc
     newTag: 0.1.0
 
 labels:
