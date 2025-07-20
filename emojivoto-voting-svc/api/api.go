@@ -33,17 +33,14 @@ func (pS *PollServiceServer) vote(shortcode string) (*pb.VoteResponse, error) {
 }
 
 func (pS *PollServiceServer) VoteDoughnut(_ context.Context, _ *pb.VoteRequest) (*pb.VoteResponse, error) {
-
 	if pS.failureRate > FloatZero {
 		probability := rand.Float32()
-
 		if probability < pS.failureRate {
 			log.Printf("probability [%f] is less than failureRate [%f]", probability, pS.failureRate)
 			log.Printf("logging an error for doughnut")
 			return nil, fmt.Errorf("ERROR")
 		}
 	}
-	log.Printf("voting for doughnut")
 	return pS.vote(":doughnut:")
 }
 

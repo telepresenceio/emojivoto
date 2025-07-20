@@ -1,9 +1,9 @@
 resources:
-- ns.yml
-- web.yml
-- emoji.yml
-- voting.yml
-- vote-bot.yml
+- ns.yaml
+- web.yaml
+- emoji.yaml
+- voting.yaml
+- vote-bot.yaml
 
 images:
   - name: emojivoto-web

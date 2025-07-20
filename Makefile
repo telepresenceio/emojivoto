@@ -1,5 +1,7 @@
 IMAGE_REGISTRY ?= ghcr.io/telepresenceio
-IMAGE_TAG ?= 0.1.0
+IMAGE_TAG ?= 0.1.1
+export IMAGE_REGISTRY
+export IMAGE_TAG
 
 .PHONY: web emoji-svc voting-svc test push kustomize
 
@@ -25,10 +27,10 @@ deploy-to-minikube:
 	$(MAKE) -C emojivoto-web build-container
 	$(MAKE) -C emojivoto-emoji-svc build-container
 	$(MAKE) -C emojivoto-voting-svc build-container
-	kubectl delete -f emojivoto.yml || echo "ok"
-	kubectl apply -f emojivoto.yml
+	kubectl delete -f emojivoto.yaml || echo "ok"
+	kubectl apply -f emojivoto.yaml
 
-deploy-to-docker-compose: compose.yml
+deploy-to-docker-compose: compose.yaml
 	docker compose stop
 	docker compose rm -vf
 	$(MAKE) -C emojivoto-web build-container
@@ -36,14 +38,14 @@ deploy-to-docker-compose: compose.yml
 	$(MAKE) -C emojivoto-voting-svc build-container
 	docker compose up -d
 
-compose.yml: compose.yml.in FORCE
+compose.yaml: compose.yaml.in FORCE
 	@envsubst < $< > $@
 
-kustomize/deployment/kustomization.yml: kustomize/deployment/kustomization.yml.in FORCE
+kustomize/deployment/kustomization.yaml: kustomize/deployment/kustomization.yaml.in FORCE
 	@envsubst < $< > $@
 FORCE:
 
-kustomize: kustomize/deployment/kustomization.yml
+kustomize: kustomize/deployment/kustomization.yaml
 	@kubectl kustomize $(<D)
 
 test:

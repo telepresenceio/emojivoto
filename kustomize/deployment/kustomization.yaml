@@ -1,25 +1,25 @@
 resources:
-- ns.yml
-- web.yml
-- emoji.yml
-- voting.yml
-- vote-bot.yml
+- ns.yaml
+- web.yaml
+- emoji.yaml
+- voting.yaml
+- vote-bot.yaml
 
 images:
   - name: emojivoto-web
     newName: ghcr.io/telepresenceio/emojivoto-web
-    newTag: 0.1.0
+    newTag: 0.1.1
   - name: emojivoto-emoji-svc
     newName: ghcr.io/telepresenceio/emojivoto-emoji-svc
-    newTag: 0.1.0
+    newTag: 0.1.1
   - name: emojivoto-voting-svc
     newName: ghcr.io/telepresenceio/emojivoto-voting-svc
-    newTag: 0.1.0
+    newTag: 0.1.1
 
 labels:
   - includeSelectors: true
     pairs:
-      version: 0.1.0
+      version: 0.1.1
   - includeTemplates: false
     pairs:
-      app.kubernetes.io/version: 0.1.0
+      app.kubernetes.io/version: 0.1.1
