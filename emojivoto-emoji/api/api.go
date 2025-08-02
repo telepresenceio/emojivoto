@@ -5,8 +5,8 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/telepresenceio/emojivoto/emojivoto-emoji-svc/emoji"
-	pb "github.com/telepresenceio/emojivoto/emojivoto-emoji-svc/gen/proto"
+	"github.com/telepresenceio/emojivoto/emojivoto-emoji/emoji"
+	pb "github.com/telepresenceio/emojivoto/emojivoto-emoji/gen/proto"
 )
 
 type EmojiServiceServer struct {

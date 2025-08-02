@@ -1,4 +1,4 @@
-svc_name := emojivoto-emoji-svc
+svc_name := emojivoto-emoji
 
 all: clean protoc test package
 

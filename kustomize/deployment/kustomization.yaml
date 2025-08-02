@@ -8,18 +8,18 @@ resources:
 images:
   - name: emojivoto-web
     newName: ghcr.io/telepresenceio/emojivoto-web
-    newTag: 0.1.1
-  - name: emojivoto-emoji-svc
-    newName: ghcr.io/telepresenceio/emojivoto-emoji-svc
-    newTag: 0.1.1
-  - name: emojivoto-voting-svc
-    newName: ghcr.io/telepresenceio/emojivoto-voting-svc
-    newTag: 0.1.1
+    newTag: 0.2.0
+  - name: emojivoto-emoji
+    newName: ghcr.io/telepresenceio/emojivoto-emoji
+    newTag: 0.2.0
+  - name: emojivoto-voting
+    newName: ghcr.io/telepresenceio/emojivoto-voting
+    newTag: 0.2.0
 
 labels:
   - includeSelectors: true
     pairs:
-      version: 0.1.1
+      version: 0.2.0
   - includeTemplates: false
     pairs:
-      app.kubernetes.io/version: 0.1.1
+      app.kubernetes.io/version: 0.2.0

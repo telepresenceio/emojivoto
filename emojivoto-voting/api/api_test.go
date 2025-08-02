@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	pb "github.com/telepresenceio/emojivoto/emojivoto-voting-svc/gen/proto"
-	"github.com/telepresenceio/emojivoto/emojivoto-voting-svc/voting"
+	pb "github.com/telepresenceio/emojivoto/emojivoto-voting/gen/proto"
+	"github.com/telepresenceio/emojivoto/emojivoto-voting/voting"
 )
 
 func TestVoteJoy(t *testing.T) {

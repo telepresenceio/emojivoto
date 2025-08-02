@@ -29,8 +29,8 @@ WORKDIR /emojivoto-build
 COPY . .
 RUN make -C emojivoto-web clean webpack package-web
 
-FROM golang AS build-emojivoto-emoji-svc
-FROM golang AS build-emojivoto-voting-svc
+FROM golang AS build-emojivoto-emoji
+FROM golang AS build-emojivoto-voting
 FROM golang AS build-emojivoto-web
 COPY --from=webpack-bundle /emojivoto-build/emojivoto-web/target/ /emojivoto-build/emojivoto-web/target/
 

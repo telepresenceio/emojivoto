@@ -3,14 +3,14 @@ services:
     image: ${IMAGE_REGISTRY}/emojivoto-web:${IMAGE_TAG}
     environment:
       - WEB_PORT=8080
-      - EMOJISVC_HOST=emoji-svc:8080
-      - VOTINGSVC_HOST=voting-svc:8080
+      - EMOJISVC_HOST=emoji:8080
+      - VOTINGSVC_HOST=voting:8080
       - INDEX_BUNDLE=dist/index_bundle.js
     ports:
       - "8080:8080"
     depends_on:
-      - voting-svc
-      - emoji-svc
+      - voting
+      - emoji
 
   vote-bot:
     image: ${IMAGE_REGISTRY}/emojivoto-web:${IMAGE_TAG}
@@ -20,15 +20,15 @@ services:
     depends_on:
       - web
 
-  emoji-svc:
-    image: ${IMAGE_REGISTRY}/emojivoto-emoji-svc:${IMAGE_TAG}
+  emoji:
+    image: ${IMAGE_REGISTRY}/emojivoto-emoji:${IMAGE_TAG}
     environment:
       - GRPC_PORT=8080
     ports:
       - "8081:8080"
 
-  voting-svc:
-    image: ${IMAGE_REGISTRY}/emojivoto-voting-svc:${IMAGE_TAG}
+  voting:
+    image: ${IMAGE_REGISTRY}/emojivoto-voting:${IMAGE_TAG}
     environment:
       - GRPC_PORT=8080
     ports:

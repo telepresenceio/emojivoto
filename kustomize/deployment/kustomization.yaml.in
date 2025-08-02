@@ -9,11 +9,11 @@ images:
   - name: emojivoto-web
     newName: ${IMAGE_REGISTRY}/emojivoto-web
     newTag: ${IMAGE_TAG}
-  - name: emojivoto-emoji-svc
-    newName: ${IMAGE_REGISTRY}/emojivoto-emoji-svc
+  - name: emojivoto-emoji
+    newName: ${IMAGE_REGISTRY}/emojivoto-emoji
     newTag: ${IMAGE_TAG}
-  - name: emojivoto-voting-svc
-    newName: ${IMAGE_REGISTRY}/emojivoto-voting-svc
+  - name: emojivoto-voting
+    newName: ${IMAGE_REGISTRY}/emojivoto-voting
     newTag: ${IMAGE_TAG}
 
 labels:

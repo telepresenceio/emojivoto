@@ -1,4 +1,4 @@
-svc_name := emojivoto-voting-svc
+svc_name := emojivoto-voting
 
 all: clean protoc test package
 

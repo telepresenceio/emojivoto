@@ -1,4 +1,4 @@
-# Emoji.voto
+# Emojivoto
 
 A microservice application that allows users to vote for their favorite emoji,
 and tracks votes received on a leaderboard. May the best emoji win.
@@ -6,16 +6,16 @@ and tracks votes received on a leaderboard. May the best emoji win.
 The application is composed of the following 3 services:
 
 * [emojivoto-web](emojivoto-web/): Web frontend and REST API
-* [emojivoto-emoji-svc](emojivoto-emoji-svc/): gRPC API for finding and listing emoji
-* [emojivoto-voting-svc](emojivoto-voting-svc/): gRPC API for voting and leaderboard
+* [emojivoto-emoji](emojivoto-emoji/): gRPC API for finding and listing emoji
+* [emojivoto-voting](emojivoto-voting/): gRPC API for voting and leaderboard
 
 ![Emojivoto Topology](assets/emojivoto-topology.png "Emojivoto Topology")
 
 ## Running
 
-### In Minikube
+### In a Kubernetes Cluster
 
-Deploy the application to Minikube
+Deploy the application to a Kubernetes Cluster
 
 1. Inject, Deploy, and Enjoy
 
@@ -23,11 +23,20 @@ Deploy the application to Minikube
     make kustomize | kubectl apply -f -
     ```
 
-1. Use the app!
+2. Use the app!
 
-    ```bash
-    minikube -n emojivoto service web-svc
-    ```
+#### If you're using Minikube
+
+   ```bash
+   minikube -n emojivoto service web
+   ```
+
+#### If you're using Telepresence
+
+   ```bash
+   telepresence connect -n emojivoto
+   telepresence serve web
+   ```
 
 ### In docker-compose
 
@@ -99,13 +108,13 @@ Use the following to run the emojivoto go services and develop on the frontend.
 Start the voting service
 
 ```bash
-GRPC_PORT=8081 go run emojivoto-voting-svc/cmd/server.go
+GRPC_PORT=8081 go run emojivoto-voting/cmd/server.go
 ```
 
 [In a separate terminal window] Start the emoji service
 
 ```bash
-GRPC_PORT=8082 go run emojivoto-emoji-svc/cmd/server.go
+GRPC_PORT=8082 go run emojivoto-emoji/cmd/server.go
 ```
 
 [In a separate terminal window] Bundle the frontend assets

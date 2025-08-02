@@ -16,11 +16,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: web-svc
+      app: web
   template:
     metadata:
       labels:
-        app: web-svc
+        app: web
     spec:
       serviceAccountName: web
       containers:
@@ -28,13 +28,13 @@ spec:
         - name: WEB_PORT
           value: "8080"
         - name: EMOJISVC_HOST
-          value: emoji-svc.emojivoto:8080
+          value: emoji.emojivoto:8080
         - name: VOTINGSVC_HOST
-          value: voting-svc.emojivoto:8080
+          value: voting.emojivoto:8080
         - name: INDEX_BUNDLE
           value: dist/index_bundle.js
         image: emojivoto-web
-        name: web-svc
+        name: web
         ports:
         - containerPort: 8080
           name: http
@@ -45,12 +45,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: web-svc
+  name: web
   namespace: emojivoto
 spec:
   type: ClusterIP
   selector:
-    app: web-svc
+    app: web
   ports:
   - name: http
     port: 80

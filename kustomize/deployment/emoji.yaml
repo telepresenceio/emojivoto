@@ -16,11 +16,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: emoji-svc
+      app: emoji
   template:
     metadata:
       labels:
-        app: emoji-svc
+        app: emoji
     spec:
       serviceAccountName: emoji
       containers:
@@ -29,8 +29,8 @@ spec:
           value: "8080"
         - name: PROM_PORT
           value: "8801"
-        image: emojivoto-emoji-svc
-        name: emoji-svc
+        image: emojivoto-emoji
+        name: emoji
         ports:
         - containerPort: 8080
           name: grpc
@@ -43,11 +43,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: emoji-svc
+  name: emoji
   namespace: emojivoto
 spec:
   selector:
-    app: emoji-svc
+    app: emoji
   ports:
   - name: grpc
     port: 8080
