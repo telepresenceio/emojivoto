@@ -4,6 +4,18 @@ metadata:
   name: voting
   namespace: emojivoto
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-pv-claim
+  namespace: emojivoto
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 200Mi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -22,9 +34,15 @@ spec:
       labels:
         app: voting
     spec:
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: data-pv-claim
       serviceAccountName: voting
       containers:
       - env:
+        - name: POLL_FILE
+          value: '/data/polls.json'
         - name: GRPC_PORT
           value: "8080"
         - name: PROM_PORT
@@ -39,6 +57,9 @@ spec:
         resources:
           requests:
             cpu: 100m
+        volumeMounts:
+          - mountPath: "/data"
+            name: data
 ---
 apiVersion: v1
 kind: Service

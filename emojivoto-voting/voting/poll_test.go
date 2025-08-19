@@ -1,12 +1,14 @@
 package voting
 
 import (
+	"path/filepath"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 )
 
 func TestVote(t *testing.T) {
-	poll := NewPoll()
+	poll := NewInMemoryPoll()
 
 	t.Run("Computes vote", func(t *testing.T) {
 		choosenEmoji := ":winning"
@@ -30,21 +32,25 @@ func TestVote(t *testing.T) {
 }
 
 func TestResults(t *testing.T) {
-	poll := NewPoll()
+	poll, err := NewOnFilePoll(filepath.Join(t.TempDir(), "polls.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	t.Run("Sorts resutls by number of votes", func(t *testing.T) {
-		firstPlace :=  ":1:"
+		firstPlace := ":1:"
 		secondPlace := ":2:"
 		thirdPlace := ":3:"
 
-		poll.Vote(thirdPlace)
-		poll.Vote(firstPlace)
-		poll.Vote(secondPlace)
-		poll.Vote(firstPlace)
-		poll.Vote(secondPlace)
-		poll.Vote(firstPlace)
+		require.NoError(t, poll.Vote(thirdPlace))
+		require.NoError(t, poll.Vote(firstPlace))
+		require.NoError(t, poll.Vote(secondPlace))
+		require.NoError(t, poll.Vote(firstPlace))
+		require.NoError(t, poll.Vote(secondPlace))
+		require.NoError(t, poll.Vote(firstPlace))
 
-		results, _ := poll.Results()
+		results, err := poll.Results()
+		require.NoError(t, err)
 		if len(results) != 3 {
 			t.Fatalf("Expected [3] result, got [%d]", len(results))
 		}

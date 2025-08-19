@@ -11,7 +11,7 @@ import (
 func TestVoteJoy(t *testing.T) {
 	t.Run("Computes vote", func(t *testing.T) {
 		ctx := context.Background()
-		poll := voting.NewPoll()
+		poll := voting.NewInMemoryPoll()
 		emojivotoService := PollServiceServer{
 			poll: poll,
 		}
@@ -34,7 +34,7 @@ func TestVoteJoy(t *testing.T) {
 func TestLeaderboard(t *testing.T) {
 	t.Run("Returns expected leaderboard", func(t *testing.T) {
 		ctx := context.Background()
-		poll := voting.NewPoll()
+		poll := voting.NewInMemoryPoll()
 		emojivotoService := PollServiceServer{
 			poll: poll,
 		}

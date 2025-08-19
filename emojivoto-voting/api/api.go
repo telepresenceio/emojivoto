@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	pb "github.com/telepresenceio/emojivoto/emojivoto-voting/gen/proto"
 	"github.com/telepresenceio/emojivoto/emojivoto-voting/voting"
@@ -25,10 +27,11 @@ type PollServiceServer struct {
 }
 
 func (pS *PollServiceServer) vote(shortcode string) (*pb.VoteResponse, error) {
-
 	time.Sleep(pS.artificialDelayDuration)
-
 	err := pS.poll.Vote(shortcode)
+	if err != nil {
+		err = status.Errorf(codes.Internal, err.Error())
+	}
 	return &pb.VoteResponse{}, err
 }
 

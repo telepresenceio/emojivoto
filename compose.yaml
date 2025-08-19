@@ -1,6 +1,6 @@
 services:
   web:
-    image: ghcr.io/telepresenceio/emojivoto-web:0.2.0
+    image: localhost:5000/emojivoto-web:0.3.0
     environment:
       - WEB_PORT=8080
       - EMOJISVC_HOST=emoji:8080
@@ -11,9 +11,11 @@ services:
     depends_on:
       - voting
       - emoji
+    volumes:
+      - data:/data
 
   vote-bot:
-    image: ghcr.io/telepresenceio/emojivoto-web:0.2.0
+    image: localhost:5000/emojivoto-web:0.3.0
     entrypoint: emojivoto-vote-bot
     environment:
       - WEB_HOST=web:8080
@@ -21,15 +23,21 @@ services:
       - web
 
   emoji:
-    image: ghcr.io/telepresenceio/emojivoto-emoji:0.2.0
+    image: localhost:5000/emojivoto-emoji:0.3.0
     environment:
       - GRPC_PORT=8080
     ports:
       - "8081:8080"
 
   voting:
-    image: ghcr.io/telepresenceio/emojivoto-voting:0.2.0
+    image: localhost:5000/emojivoto-voting:0.3.0
     environment:
       - GRPC_PORT=8080
+      - POLL_FILE=/data/polls.json
     ports:
       - "8082:8080"
+    volumes:
+      - data:/data
+
+volumes:
+  data:

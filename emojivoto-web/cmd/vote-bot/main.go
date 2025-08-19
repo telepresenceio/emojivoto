@@ -102,6 +102,7 @@ func shortcodes(webURL string, hostOverride string) ([]string, error) {
 	var emojis []*emoji
 	err = json.Unmarshal(bytes, &emojis)
 	if err != nil {
+		fmt.Printf("✘ Unable to parse JSON response %q: %v\n", string(bytes), err)
 		return nil, err
 	}
 

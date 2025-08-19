@@ -23,6 +23,7 @@ import (
 var (
 	grpcPort                   = os.Getenv("GRPC_PORT")
 	promPort                   = os.Getenv("PROM_PORT")
+	pollFile                   = os.Getenv("POLL_FILE")
 	failureRateVar             = os.Getenv("FAILURE_RATE")
 	failureRateFloat           = 0.0
 	artificialDelayVar         = os.Getenv("ARTIFICIAL_DELAY")
@@ -35,7 +36,16 @@ func main() {
 		log.Fatalf("GRPC_PORT (currently [%s]) environment variable must me set to run the server.", grpcPort)
 	}
 
-	poll := voting.NewPoll()
+	var poll voting.Poll
+	if pollFile != "" {
+		var err error
+		poll, err = voting.NewOnFilePoll(pollFile)
+		if err != nil {
+			log.Fatalf("Failed to load poll from file [%s]: %v", pollFile, err)
+		}
+	} else {
+		poll = voting.NewInMemoryPoll()
+	}
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", grpcPort))
 	if err != nil {

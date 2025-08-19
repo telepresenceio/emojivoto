@@ -1,7 +1,11 @@
 package voting
 
 import (
+	"encoding/json"
+	"fmt"
+	"io"
 	"log"
+	"os"
 	"sort"
 	"sync"
 
@@ -25,6 +29,82 @@ func (s ByVotes) Less(i, j int) bool {
 type Poll interface {
 	Vote(choice string) error
 	Results() ([]*Result, error)
+}
+
+type onFilePoll struct {
+	sync.RWMutex
+	file    *os.File
+	counter *prometheus.CounterVec
+}
+
+func (p *onFilePoll) Vote(choice string) error {
+	votes, err := p.readMap()
+	if err != nil {
+		return err
+	}
+	votes[choice]++
+	err = p.writeMap(votes)
+	if err != nil {
+		return err
+	}
+	p.counter.With(prometheus.Labels{"emoji": choice}).Inc()
+	log.Printf("Voted for [%s], which now has a total of [%d] votes", choice, votes[choice])
+	return nil
+}
+
+func (p *onFilePoll) Results() ([]*Result, error) {
+	votes, err := p.readMap()
+	if err != nil {
+		return nil, err
+	}
+	results := make([]*Result, len(votes))
+	i := 0
+	for emoji, numVotes := range votes {
+		results[i] = &Result{emoji, numVotes}
+		i++
+	}
+	sort.Sort(ByVotes(results))
+	return results, nil
+}
+
+func (p *onFilePoll) readMap() (votes map[string]int, err error) {
+	var vj []byte
+	p.RLock()
+	_, err = p.file.Seek(0, io.SeekStart)
+	if err == nil {
+		vj, err = io.ReadAll(p.file)
+	}
+	p.RUnlock()
+	if err != nil {
+		return nil, fmt.Errorf("failed to read votes from %q: %w", p.file.Name(), err)
+	}
+	if len(vj) > 0 {
+		err = json.Unmarshal(vj, &votes)
+		if err != nil {
+			return nil, fmt.Errorf("failed to unmarshal votes from %q: %w", p.file.Name(), err)
+		}
+	}
+	if votes == nil {
+		votes = make(map[string]int)
+	}
+	return votes, nil
+}
+
+func (p *onFilePoll) writeMap(votes map[string]int) error {
+	vj, err := json.Marshal(votes)
+	if err != nil {
+		return fmt.Errorf("failed to marshal votes: %w", err)
+	}
+	p.Lock()
+	_, err = p.file.Seek(0, io.SeekStart)
+	if err == nil {
+		_, err = p.file.Write(vj)
+	}
+	p.Unlock()
+	if err != nil {
+		err = fmt.Errorf("failed to write votes to %q: %w", p.file.Name(), err)
+	}
+	return err
 }
 
 type inMemoryPoll struct {
@@ -51,12 +131,12 @@ func (p *inMemoryPoll) Results() ([]*Result, error) {
 	p.RLock()
 	defer p.RUnlock()
 
-	results := make([]*Result, 0)
-
+	results := make([]*Result, len(p.votes))
+	i := 0
 	for emoji, numVotes := range p.votes {
-		results = append(results, &Result{emoji, numVotes})
+		results[i] = &Result{emoji, numVotes}
+		i++
 	}
-
 	sort.Sort(ByVotes(results))
 
 	return results, nil
@@ -67,10 +147,21 @@ var counter = promauto.NewCounterVec(prometheus.CounterOpts{
 	Help: "Number of emoji votes",
 }, []string{"emoji"})
 
-func NewPoll() Poll {
-	poll := &inMemoryPoll{
+func NewInMemoryPoll() Poll {
+	return &inMemoryPoll{
 		votes:   make(map[string]int, 0),
 		counter: counter,
 	}
-	return poll
+}
+
+func NewOnFilePoll(path string) (Poll, error) {
+	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0o666)
+	if err != nil {
+		return nil, err
+	}
+	log.Printf("Storing votes in file %s", path)
+	return &onFilePoll{
+		file:    f,
+		counter: counter,
+	}, nil
 }
